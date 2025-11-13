@@ -1,0 +1,35 @@
+====================================================================================================
+                    COMBINED CONTEXT FILE
+====================================================================================================
+
+Generated: 2025-11-13T03:05:30.609Z
+Total Items: 1
+
+
+====================================================================================================
+ITEM 1: Website - ai.google.dev
+Extracted: 2025-11-13T03:05:27.164Z
+====================================================================================================
+
+# WEBSITE DOCUMENTATION CONTEXT FOR AI ASSISTANTS
+
+## HOW TO USE THIS CONTEXT
+This file contains documentation extracted from: https://ai.google.dev/gemini-api/docs
+Use this context to answer questions about the documented API, library, or service.
+Refer to this documentation when the user asks how to use or integrate with this service.
+Look for:
+- API endpoints and parameters
+- Authentication methods
+- Code examples and usage patterns
+- Configuration options
+
+**Source:** https://ai.google.dev/gemini-api/docs
+**Extracted:** 2025-11-12T19:05:27.139818
+**Content Length:** 1,912 characters
+
+================================================================================
+
+## DOCUMENTATION CONTENT
+
+Skip to main content / Get API key Cookbook Community Sign in searchTry RAG with the Gemini API using the File Search tool. Home Gemini API Gemini API Docs Gemini Developer API content_copy Get a Gemini API Key Get a Gemini API key and make your first API request in minutes. Python JavaScript Go Java C# REST from google import genai client = genai.Client() response = client.models.generate_content( model="gemini-2.5-flash", contents="Explain how AI works in a few words", ) print(response.text) Meet the models Start building with Gemini 2.5 Pro spark Our most powerful thinking model with features for complex reasoning and much more 2.5 Flash spark Our most balanced model, with a 1 million token context window and more 2.5 Flash-Lite spark Our fastest and most cost-efficient multimodal model with great performance for high-frequency tasks Veo 3.1 video_library Our state of the art video generation model, with native audio Gemini 2.5 Flash Image imagesmode (Nano Banana), our highly effective and precise image generation model Gemini Embeddings data_array Our first Gemini embedding model, designed for production RAG workflows Explore the API Native Image Generation (aka Nano Banana) Generate and edit highly contextual images natively with Gemini 2.5 Flash Image. Explore long context Input millions of tokens to Gemini models and derive understanding from unstructured images, videos, and documents. Generate structured outputs Constrain Gemini to respond with JSON, a structured data format suitable for automated processing. Start building with the Gemini API Get started Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License, and code samples are licensed under the Apache 2.0 License. For details, see the Google Developers Site Policies. Java is a registered trademark of Oracle and/or its affiliates. Last updated 2025-11-10 UTC.
+
