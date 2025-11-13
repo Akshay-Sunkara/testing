@@ -907,89 +907,149 @@ Enhanced instruction:`
         </div>
       )}
 
-      {/* GitHub Repository Selector Modal */}
+      {/* GitHub Repository Selector Modal - Dark Theme */}
       {showRepoSelector && (
         <div className={`modal-overlay ${isModalClosing ? 'closing' : ''}`} onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '80vh' }}>
-            <div className="form-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <div 
+            className="modal-content" 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ 
+              maxWidth: '600px', 
+              maxHeight: '80vh',
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #2d2d2d',
+              color: '#e0e0e0'
+            }}
+          >
+            <div className="form-header" style={{ borderBottom: '1px solid #2d2d2d', paddingBottom: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#e0e0e0' }}>
                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                 </svg>
-                <h3>Select Repository</h3>
+                <h3 style={{ margin: 0, color: '#e0e0e0', fontWeight: '600' }}>Select Repository</h3>
               </div>
-              <button className="close-btn" onClick={handleCloseModal}>×</button>
+              <button 
+                className="close-btn" 
+                onClick={handleCloseModal}
+                style={{ color: '#999', fontSize: '24px', background: 'none', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#e0e0e0'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#999'}
+              >
+                ×
+              </button>
             </div>
             
             {githubUser && (
-              <p style={{ margin: '0 0 20px 0', color: '#666', fontSize: '14px' }}>
-                Connected as <strong>{githubUser.username}</strong>
+              <p style={{ margin: '0 0 20px 0', color: '#999', fontSize: '13px', fontWeight: '400' }}>
+                Connected as <strong style={{ color: '#667eea', fontWeight: '600' }}>{githubUser.username}</strong>
               </p>
             )}
 
-            <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '20px' }}>
+            <div style={{ 
+              maxHeight: '400px', 
+              overflowY: 'auto', 
+              marginBottom: '20px',
+              paddingRight: '4px'
+            }}>
               {githubRepos.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                  <p>No repositories found</p>
+                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                  <p style={{ margin: 0 }}>No repositories found</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {githubRepos.map((repo) => (
                     <div
                       key={repo.id}
                       onClick={() => setSelectedRepo(repo)}
                       style={{
-                        padding: '12px',
-                        border: `2px solid ${selectedRepo?.id === repo.id ? '#667eea' : '#e0e0e0'}`,
+                        padding: '14px 16px',
+                        border: `1px solid ${selectedRepo?.id === repo.id ? '#667eea' : '#2d2d2d'}`,
                         borderRadius: '8px',
                         cursor: 'pointer',
-                        backgroundColor: selectedRepo?.id === repo.id ? '#f0f4ff' : 'white',
-                        transition: 'all 0.2s'
+                        backgroundColor: selectedRepo?.id === repo.id ? '#1e1e2e' : '#1f1f1f',
+                        transition: 'all 0.2s ease',
+                        boxShadow: selectedRepo?.id === repo.id ? '0 0 0 1px rgba(102, 126, 234, 0.2)' : 'none'
                       }}
                       onMouseEnter={(e) => {
                         if (selectedRepo?.id !== repo.id) {
-                          e.currentTarget.style.borderColor = '#667eea'
-                          e.currentTarget.style.backgroundColor = '#f8f9ff'
+                          e.currentTarget.style.borderColor = '#3d3d3d'
+                          e.currentTarget.style.backgroundColor = '#252525'
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (selectedRepo?.id !== repo.id) {
-                          e.currentTarget.style.borderColor = '#e0e0e0'
-                          e.currentTarget.style.backgroundColor = 'white'
+                          e.currentTarget.style.borderColor = '#2d2d2d'
+                          e.currentTarget.style.backgroundColor = '#1f1f1f'
                         }
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                            <strong style={{ color: '#333' }}>{repo.full_name}</strong>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                            <strong style={{ color: '#e0e0e0', fontSize: '15px', fontWeight: '600' }}>
+                              {repo.full_name}
+                            </strong>
                             {repo.private && (
                               <span style={{ 
-                                fontSize: '11px', 
-                                padding: '2px 6px', 
-                                backgroundColor: '#ff9800', 
-                                color: 'white', 
+                                fontSize: '10px', 
+                                padding: '3px 8px', 
+                                backgroundColor: '#3d2914', 
+                                color: '#ff9800', 
                                 borderRadius: '4px',
-                                fontWeight: '600'
+                                fontWeight: '600',
+                                border: '1px solid #4d3a1f'
                               }}>
                                 Private
                               </span>
                             )}
                           </div>
                           {repo.description && (
-                            <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.4' }}>
+                            <p style={{ 
+                              margin: '0 0 8px 0', 
+                              fontSize: '13px', 
+                              color: '#999', 
+                              lineHeight: '1.5',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden'
+                            }}>
                               {repo.description}
                             </p>
                           )}
-                          <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '12px', color: '#999' }}>
-                            {repo.language && <span>● {repo.language}</span>}
-                            <span>Updated {new Date(repo.updated_at).toLocaleDateString()}</span>
+                          <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#666', alignItems: 'center' }}>
+                            {repo.language && (
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ 
+                                  width: '10px', 
+                                  height: '10px', 
+                                  borderRadius: '50%', 
+                                  backgroundColor: '#667eea',
+                                  display: 'inline-block'
+                                }}></span>
+                                {repo.language}
+                              </span>
+                            )}
+                            <span style={{ color: '#666' }}>
+                              {new Date(repo.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </span>
                           </div>
                         </div>
                         {selectedRepo?.id === repo.id && (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ color: '#667eea' }}>
-                            <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
+                          <div style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            backgroundColor: '#667eea',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0
+                          }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: '#fff' }}>
+                              <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1002,7 +1062,32 @@ Enhanced instruction:`
               className={`generate-btn-full ${isLoadingGithub ? 'loading' : ''}`}
               onClick={() => selectedRepo && extractGitHubRepo(selectedRepo)}
               disabled={isLoadingGithub || !selectedRepo}
-              style={{ opacity: selectedRepo ? 1 : 0.5, cursor: selectedRepo ? 'pointer' : 'not-allowed' }}
+              style={{ 
+                opacity: selectedRepo ? 1 : 0.4, 
+                cursor: selectedRepo ? 'pointer' : 'not-allowed',
+                backgroundColor: selectedRepo ? '#667eea' : '#2d2d2d',
+                color: selectedRepo ? '#fff' : '#666',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontWeight: '600',
+                fontSize: '14px',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => {
+                if (selectedRepo && !isLoadingGithub) {
+                  e.currentTarget.style.backgroundColor = '#5568d3'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedRepo && !isLoadingGithub) {
+                  e.currentTarget.style.backgroundColor = '#667eea'
+                }
+              }}
             >
               {isLoadingGithub ? (
                 <>
@@ -1011,8 +1096,8 @@ Enhanced instruction:`
                 </>
               ) : (
                 <>
-                  <span>Extract {selectedRepo ? selectedRepo.full_name : 'Repository'}</span>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <span>Extract {selectedRepo ? selectedRepo.full_name.split('/')[1] : 'Repository'}</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </>
