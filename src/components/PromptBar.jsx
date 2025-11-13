@@ -489,30 +489,25 @@ function PromptBar() {
       // Save original prompt
       const originalPrompt = promptText
 
-      // Combine with full context
-      let fullContext = ''
-      contextItems.forEach((item) => {
-        fullContext += `\n--- ${item.type}: ${item.name} ---\n`
-        fullContext += item.content + '\n'
-      })
+      // Get list of available context types
+      const contextTypes = contextItems.map(item => item.type)
+      const uniqueContextTypes = [...new Set(contextTypes)]
+      const contextSummary = uniqueContextTypes.join(', ')
 
-      // Create the prompt for Gemini
-      const systemPrompt = `You are an expert at refining user instructions by analyzing provided context. Your task is to:
+      // Create concise prompt for Gemini
+      const systemPrompt = `Transform this user instruction by adding brief references to available context sections. Keep it concise and natural.
 
-1. Read the user's original instruction
-2. Analyze all the provided context (GitHub code, Slack messages, documentation, database schemas, etc.)
-3. Transform the instruction into a HYPERSPECIFIC, detailed prompt that:
-   - References specific details from the context (e.g., "gray outline as mentioned in Slack messages")
-   - Incorporates relevant code patterns from GitHub repos
-   - Utilizes documentation details from websites
-   - References database structures if provided
-   - Maintains the user's intent but makes it much more precise and actionable
+Available context: ${contextSummary}
 
-Original Instruction: "${originalPrompt}"
+Rules:
+- Reference context by type: "use GitHub codebase for syntax", "use Slack messages for layout", "use Website documentation for functionality", "use Firebase/Supabase schema for data structure"
+- Keep the original instruction intact, just add context references
+- Be brief - don't repeat the full context, just reference it
+- Example: "create a prompt bar" → "create a prompt bar, use the documentation defined in context for functionality, use the layout defined in Slack messages, use GitHub codebase to follow syntax and previous commits"
 
-${fullContext}
+Original instruction: "${originalPrompt}"
 
-Please provide a detailed, hyperspecific version of the instruction that references the context above. Be very specific and reference actual details from the context.`
+Enhanced instruction:`
 
       // Call Gemini 2.5 Flash API (latest model)
       const GEMINI_API_KEY = 'AIzaSyB7vQl7Qlkm_YemtDjR0LDUDaYeFteJSL8'
