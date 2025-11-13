@@ -20,6 +20,10 @@ function PromptBar() {
     username: '',
     repo: ''
   })
+  const [githubUser, setGithubUser] = useState(null) // { username, user_id }
+  const [githubRepos, setGithubRepos] = useState([])
+  const [showRepoSelector, setShowRepoSelector] = useState(false)
+  const [selectedRepo, setSelectedRepo] = useState(null)
   const [firebaseData, setFirebaseData] = useState({
     projectId: '',
     serviceAccountKey: ''
@@ -85,6 +89,27 @@ function PromptBar() {
           timestamp: new Date().toISOString()
         }
         setContextItems(prev => [...prev, newItem])
+      } else if (event.data && event.data.type === 'github_connected') {
+        // Handle GitHub OAuth callback
+        const user = {
+          username: event.data.username,
+          userId: event.data.userId
+        }
+        setGithubUser(user)
+        // Load repositories
+        fetch(`${API_BASE_URL}/api/github/repos?user_id=${user.userId}`, {
+          headers: { 'ngrok-skip-browser-warning': 'true' }
+        })
+          .then(res => res.json())
+          .then(data => {
+            setGithubRepos(data.repos || [])
+            setShowRepoSelector(true)
+            setIsModalClosing(false)
+          })
+          .catch(err => {
+            alert(`❌ Error loading repositories: ${err.message}`)
+            console.error('GitHub repos error:', err)
+          })
       }
     }
 
@@ -147,9 +172,37 @@ function PromptBar() {
     }
   }
 
-  const handleExtractGithub = () => {
-    setShowGithubModal(true)
+  const handleExtractGithub = async () => {
+    // If user is already authenticated, show repo selector
+    if (githubUser) {
+      await loadGitHubRepos(githubUser.userId)
+      setShowRepoSelector(true)
     setIsModalClosing(false)
+    } else {
+      // Start OAuth flow
+      window.open(`${API_BASE_URL}/api/github/install`, '_blank', 'width=600,height=700')
+    }
+  }
+
+  const loadGitHubRepos = async (userId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/github/repos?user_id=${userId}`, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to load repositories')
+      }
+      
+      const data = await response.json()
+      setGithubRepos(data.repos || [])
+    } catch (error) {
+      alert(`❌ Error loading repositories: ${error.message}`)
+      console.error('GitHub repos error:', error)
+    }
   }
 
   const handleCloseModal = () => {
@@ -158,6 +211,7 @@ function PromptBar() {
       setShowGithubModal(false)
       setShowFirebaseModal(false)
       setShowSupabaseModal(false)
+      setShowRepoSelector(false)
       setIsModalClosing(false)
     }, 250) // Match the animation duration
   }
@@ -168,6 +222,13 @@ function PromptBar() {
   }
 
   const handleGithubSubmit = async () => {
+    // OAuth flow - use selected repo
+    if (githubUser && selectedRepo) {
+      await extractGitHubRepo(selectedRepo)
+      return
+    }
+    
+    // Legacy PAT token flow
     if (!githubData.token || !githubData.username) {
       alert('Please provide at least a GitHub token and username')
       return
@@ -214,6 +275,57 @@ function PromptBar() {
       
       handleCloseModal()
       setGithubData({ token: '', username: '', repo: '' })
+    } catch (error) {
+      alert(`❌ Error: ${error.message}`)
+      console.error('GitHub extraction error:', error)
+    } finally {
+      setIsLoadingGithub(false)
+    }
+  }
+
+  const extractGitHubRepo = async (repo) => {
+    if (!githubUser) return
+
+    setIsLoadingGithub(true)
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/extract/github`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify({
+          user_id: githubUser.userId,
+          username: githubUser.username,
+          repo: repo.full_name || repo.name
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to extract context')
+      }
+
+      // Get the text content
+      const text = await response.text()
+      
+      const displayName = repo.full_name || `${githubUser.username}/${repo.name}`
+      
+      // Add to context items
+      const newItem = {
+        id: Date.now(),
+        type: 'GitHub',
+        name: displayName,
+        content: text,
+        timestamp: new Date().toISOString()
+      }
+      
+      setContextItems(prev => [...prev, newItem])
+      
+      setShowRepoSelector(false)
+      setSelectedRepo(null)
+      setIsModalClosing(false)
     } catch (error) {
       alert(`❌ Error: ${error.message}`)
       console.error('GitHub extraction error:', error)
@@ -795,14 +907,133 @@ Enhanced instruction:`
         </div>
       )}
 
-      {/* GitHub Modal */}
+      {/* GitHub Repository Selector Modal */}
+      {showRepoSelector && (
+        <div className={`modal-overlay ${isModalClosing ? 'closing' : ''}`} onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '80vh' }}>
+            <div className="form-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <h3>Select Repository</h3>
+              </div>
+              <button className="close-btn" onClick={handleCloseModal}>×</button>
+            </div>
+            
+            {githubUser && (
+              <p style={{ margin: '0 0 20px 0', color: '#666', fontSize: '14px' }}>
+                Connected as <strong>{githubUser.username}</strong>
+              </p>
+            )}
+
+            <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '20px' }}>
+              {githubRepos.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                  <p>No repositories found</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {githubRepos.map((repo) => (
+                    <div
+                      key={repo.id}
+                      onClick={() => setSelectedRepo(repo)}
+                      style={{
+                        padding: '12px',
+                        border: `2px solid ${selectedRepo?.id === repo.id ? '#667eea' : '#e0e0e0'}`,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        backgroundColor: selectedRepo?.id === repo.id ? '#f0f4ff' : 'white',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedRepo?.id !== repo.id) {
+                          e.currentTarget.style.borderColor = '#667eea'
+                          e.currentTarget.style.backgroundColor = '#f8f9ff'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedRepo?.id !== repo.id) {
+                          e.currentTarget.style.borderColor = '#e0e0e0'
+                          e.currentTarget.style.backgroundColor = 'white'
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                            <strong style={{ color: '#333' }}>{repo.full_name}</strong>
+                            {repo.private && (
+                              <span style={{ 
+                                fontSize: '11px', 
+                                padding: '2px 6px', 
+                                backgroundColor: '#ff9800', 
+                                color: 'white', 
+                                borderRadius: '4px',
+                                fontWeight: '600'
+                              }}>
+                                Private
+                              </span>
+                            )}
+                          </div>
+                          {repo.description && (
+                            <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.4' }}>
+                              {repo.description}
+                            </p>
+                          )}
+                          <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '12px', color: '#999' }}>
+                            {repo.language && <span>● {repo.language}</span>}
+                            <span>Updated {new Date(repo.updated_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        {selectedRepo?.id === repo.id && (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ color: '#667eea' }}>
+                            <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button 
+              className={`generate-btn-full ${isLoadingGithub ? 'loading' : ''}`}
+              onClick={() => selectedRepo && extractGitHubRepo(selectedRepo)}
+              disabled={isLoadingGithub || !selectedRepo}
+              style={{ opacity: selectedRepo ? 1 : 0.5, cursor: selectedRepo ? 'pointer' : 'not-allowed' }}
+            >
+              {isLoadingGithub ? (
+                <>
+                  <span className="spinner"></span>
+                  <span>Extracting...</span>
+                </>
+              ) : (
+                <>
+                  <span>Extract {selectedRepo ? selectedRepo.full_name : 'Repository'}</span>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* GitHub Modal (Legacy PAT Token Flow) */}
       {showGithubModal && (
         <div className={`modal-overlay ${isModalClosing ? 'closing' : ''}`} onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="form-header">
-              <h3>GitHub Information</h3>
+              <h3>GitHub Information (Legacy)</h3>
               <button className="close-btn" onClick={handleCloseModal}>×</button>
             </div>
+            
+            <p style={{ margin: '0 0 20px 0', color: '#666', fontSize: '14px' }}>
+              For OAuth login, click "Extract GitHub" button. This form is for Personal Access Token.
+            </p>
             
             <div className="input-group">
               <label>GitHub Personal Access Token *</label>
