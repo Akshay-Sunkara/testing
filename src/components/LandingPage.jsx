@@ -67,27 +67,26 @@ function LandingPage() {
               {folderName ? 'Click the folder below to change it' : 'Select the folder where you want to save your context file'}
             </p>
             
-            <div 
-              className={`selected-folder ${folderName ? 'clickable' : ''}`}
-              onClick={folderName ? handleSelectFolder : undefined}
-              style={{ cursor: folderName ? 'pointer' : 'default' }}
-            >
-              {isSelecting ? (
-                <>
-                  <span className="spinner-small"></span>
-                  <span>Selecting...</span>
-                </>
-              ) : (
-                <>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span>{folderName || 'Click to select folder'}</span>
-                </>
-              )}
-            </div>
-            
-            {!folderName && (
+            {folderName ? (
+              <div 
+                className="selected-folder clickable"
+                onClick={handleSelectFolder}
+              >
+                {isSelecting ? (
+                  <>
+                    <span className="spinner-small"></span>
+                    <span>Selecting...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>{folderName}</span>
+                  </>
+                )}
+              </div>
+            ) : (
               <button 
                 className="folder-button" 
                 onClick={handleSelectFolder}
