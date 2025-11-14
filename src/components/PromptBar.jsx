@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import './PromptBar.css'
 import { API_BASE_URL } from '../config'
+import { useFolder } from '../contexts/FolderContext'
 
 function PromptBar() {
+  const { writeFileToFolder } = useFolder()
   const [promptText, setPromptText] = useState('')
   const [isLoadingGithub, setIsLoadingGithub] = useState(false)
   const [isLoadingSlack, setIsLoadingSlack] = useState(false)
@@ -543,7 +545,7 @@ function PromptBar() {
     }
   }
 
-  const handleDownloadAll = () => {
+  const handleDownloadAll = async () => {
     if (contextItems.length === 0) return
     
     // Trigger animation
@@ -565,16 +567,8 @@ function PromptBar() {
       combinedContent += '\n\n'
     })
     
-    // Create and download file
-    const blob = new Blob([combinedContent], { type: 'text/plain' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `combined_context_${Date.now()}.txt`
-    document.body.appendChild(a)
-    a.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(a)
+    // Write to selected folder or fallback to download
+    await writeFileToFolder(combinedContent, 'context.txt')
     
     // Clear context items after animation
     setTimeout(() => {
