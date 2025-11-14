@@ -324,23 +324,29 @@
   transform: translateY(0);
 }
 
+.folder-selected-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
 .continue-button {
   position: relative;
-  padding: 18px 48px;
-  font-size: 1.1rem;
+  padding: 12px 32px;
+  font-size: 0.95rem;
   font-weight: 500;
   color: #fff;
   background: #1a1a1a;
   border: 1px solid #333;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   overflow: hidden;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-top: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
 .continue-button:hover {
