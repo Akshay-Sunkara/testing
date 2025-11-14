@@ -600,47 +600,26 @@ function PromptBar() {
       const uniqueContextTypes = [...new Set(contextTypes)]
       const contextSummary = uniqueContextTypes.join(', ')
 
-      // Create concise prompt for Gemini
-      const systemPrompt = `Transform this user instruction by adding brief references to available context sections. Keep it concise and natural.
-
-Available context: ${contextSummary}
-
-Rules:
-- Reference context by type: "use GitHub codebase for syntax", "use Slack messages for layout", "use Website documentation for functionality", "use Firebase/Supabase schema for data structure"
-- Keep the original instruction intact, just add context references
-- Be brief - don't repeat the full context, just reference it
-- Example: "create a prompt bar" → "create a prompt bar, use the documentation defined in context for functionality, use the layout defined in Slack messages, use GitHub codebase to follow syntax and previous commits"
-
-Original instruction: "${originalPrompt}"
-
-Enhanced instruction:`
-
-      // Call Gemini 2.5 Flash API (latest model)
-      const GEMINI_API_KEY = 'AIzaSyB7vQl7Qlkm_YemtDjR0LDUDaYeFteJSL8'
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: systemPrompt
-              }]
-            }]
-          })
-        }
-      )
+      // Call backend API to enhance prompt (API key is secure on backend)
+      const response = await fetch(`${API_BASE_URL}/api/enhance-prompt`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify({
+          prompt: originalPrompt,
+          contextSummary: contextSummary
+        })
+      })
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error?.message || 'Failed to enhance prompt')
+        throw new Error(error.error || 'Failed to enhance prompt')
       }
 
       const data = await response.json()
-      const enhancedText = data.candidates[0].content.parts[0].text
+      const enhancedText = data.enhancedPrompt
 
       setEnhancedPrompt(enhancedText)
       
