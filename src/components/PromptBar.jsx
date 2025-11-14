@@ -551,30 +551,99 @@ function PromptBar() {
     // Trigger animation
     setIsDownloading(true)
     
-    // Combine all context items into one file
-    let combinedContent = '='.repeat(100) + '\n'
-    combinedContent += '                    COMBINED CONTEXT FILE\n'
-    combinedContent += '='.repeat(100) + '\n\n'
-    combinedContent += `Generated: ${new Date().toISOString()}\n`
-    combinedContent += `Total Items: ${contextItems.length}\n\n`
-    
-    contextItems.forEach((item, index) => {
-      combinedContent += '\n' + '='.repeat(100) + '\n'
-      combinedContent += `ITEM ${index + 1}: ${item.type} - ${item.name}\n`
-      combinedContent += `Extracted: ${item.timestamp}\n`
+    try {
+      // Combine all context items into one file
+      let combinedContent = '='.repeat(100) + '\n'
+      combinedContent += '                    COMBINED CONTEXT FILE\n'
       combinedContent += '='.repeat(100) + '\n\n'
-      combinedContent += item.content
-      combinedContent += '\n\n'
-    })
-    
-    // Write to selected folder or fallback to download
-    await writeFileToFolder(combinedContent, 'context.txt')
-    
-    // Clear context items after animation
-    setTimeout(() => {
-      setContextItems([])
-      setIsDownloading(false)
-    }, 1000)
+      combinedContent += `Generated: ${new Date().toISOString()}\n`
+      combinedContent += `Total Items: ${contextItems.length}\n\n`
+      
+      contextItems.forEach((item, index) => {
+        combinedContent += '\n' + '='.repeat(100) + '\n'
+        combinedContent += `ITEM ${index + 1}: ${item.type} - ${item.name}\n`
+        combinedContent += `Extracted: ${item.timestamp}\n`
+        combinedContent += '='.repeat(100) + '\n\n'
+        combinedContent += item.content
+        combinedContent += '\n\n'
+      })
+      
+      console.log('🔄 Filtering context with Gemini to extract programming-relevant information...')
+      console.log(`📊 Original size: ${combinedContent.length} characters`)
+      
+      // Filter context through Gemini to extract only programming-relevant information
+      const filterResponse = await fetch(`${API_BASE_URL}/api/filter-context`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify({ context: combinedContent })
+      })
+      
+      if (!filterResponse.ok) {
+        const error = await filterResponse.json()
+        throw new Error(error.error || 'Failed to filter context')
+      }
+      
+      const filterResult = await filterResponse.json()
+      const filteredContent = filterResult.filteredContext
+      const stats = filterResult.stats
+      
+      console.log('✅ Context filtered successfully!')
+      console.log(`📉 Filtered size: ${stats.filtered_size} characters`)
+      console.log(`📊 Reduction: ${stats.reduction_percent}%`)
+      
+      // Add header to filtered content
+      let finalContent = '='.repeat(100) + '\n'
+      finalContent += '          FILTERED CONTEXT FILE (Programming & Project Relevant)\n'
+      finalContent += '='.repeat(100) + '\n\n'
+      finalContent += `Generated: ${new Date().toISOString()}\n`
+      finalContent += `Total Items Processed: ${contextItems.length}\n`
+      finalContent += `Original Size: ${stats.original_size.toLocaleString()} characters\n`
+      finalContent += `Filtered Size: ${stats.filtered_size.toLocaleString()} characters\n`
+      finalContent += `Reduction: ${stats.reduction_percent}%\n`
+      finalContent += `Filtered by: Gemini 2.5 Flash\n\n`
+      finalContent += '='.repeat(100) + '\n\n'
+      finalContent += filteredContent
+      
+      // Write to selected folder or fallback to download
+      await writeFileToFolder(finalContent, 'context.txt')
+      
+      // Clear context items after animation
+      setTimeout(() => {
+        setContextItems([])
+        setIsDownloading(false)
+      }, 1000)
+      
+    } catch (error) {
+      console.error('❌ Error filtering context:', error)
+      alert(`❌ Error: ${error.message}\n\nFalling back to unfiltered download...`)
+      
+      // Fallback: download unfiltered content
+      let combinedContent = '='.repeat(100) + '\n'
+      combinedContent += '                    COMBINED CONTEXT FILE (UNFILTERED)\n'
+      combinedContent += '='.repeat(100) + '\n\n'
+      combinedContent += `Generated: ${new Date().toISOString()}\n`
+      combinedContent += `Total Items: ${contextItems.length}\n`
+      combinedContent += `Note: Filtering failed, this is raw unfiltered content\n\n`
+      
+      contextItems.forEach((item, index) => {
+        combinedContent += '\n' + '='.repeat(100) + '\n'
+        combinedContent += `ITEM ${index + 1}: ${item.type} - ${item.name}\n`
+        combinedContent += `Extracted: ${item.timestamp}\n`
+        combinedContent += '='.repeat(100) + '\n\n'
+        combinedContent += item.content
+        combinedContent += '\n\n'
+      })
+      
+      await writeFileToFolder(combinedContent, 'context.txt')
+      
+      setTimeout(() => {
+        setContextItems([])
+        setIsDownloading(false)
+      }, 1000)
+    }
   }
 
   const handleEnhancePrompt = async () => {
