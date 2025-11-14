@@ -306,6 +306,22 @@
   color: #fff;
   font-size: 1rem;
   animation: folderSelectedReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.selected-folder.clickable {
+  cursor: pointer;
+}
+
+.selected-folder.clickable:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.selected-folder.clickable:active {
+  transform: translateY(0);
 }
 
 @keyframes folderSelectedReveal {
