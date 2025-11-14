@@ -326,9 +326,11 @@
 
 .folder-selected-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .continue-button {
