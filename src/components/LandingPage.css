@@ -324,6 +324,44 @@
   transform: translateY(0);
 }
 
+.continue-button {
+  position: relative;
+  padding: 18px 48px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #fff;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.continue-button:hover {
+  transform: translateY(-2px);
+  border-color: #555;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  background: #222;
+}
+
+.continue-button:active {
+  transform: translateY(0);
+}
+
+.continue-button svg {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.continue-button:hover svg {
+  transform: translateX(4px);
+}
+
 @keyframes folderSelectedReveal {
   from {
     opacity: 0;

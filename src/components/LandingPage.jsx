@@ -14,7 +14,12 @@ function LandingPage() {
   useEffect(() => {
     // Fade in after mount
     setTimeout(() => setIsVisible(true), 100)
-  }, [])
+    
+    // If folder is already selected, show folder selection screen
+    if (folderName) {
+      setShowFolderSelection(true)
+    }
+  }, [folderName])
 
   const handleGetStarted = () => {
     setShowFolderSelection(true)
@@ -34,6 +39,15 @@ function LandingPage() {
           navigate('/app')
         }, 800)
       }, 500)
+    }
+  }
+
+  const handleContinue = () => {
+    if (folderName) {
+      setIsLeaving(true)
+      setTimeout(() => {
+        navigate('/app')
+      }, 800)
     }
   }
 
@@ -68,24 +82,35 @@ function LandingPage() {
             </p>
             
             {folderName ? (
-              <div 
-                className="selected-folder clickable"
-                onClick={handleSelectFolder}
-              >
-                {isSelecting ? (
-                  <>
-                    <span className="spinner-small"></span>
-                    <span>Selecting...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <span>{folderName}</span>
-                  </>
-                )}
-              </div>
+              <>
+                <div 
+                  className="selected-folder clickable"
+                  onClick={handleSelectFolder}
+                >
+                  {isSelecting ? (
+                    <>
+                      <span className="spinner-small"></span>
+                      <span>Selecting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>{folderName}</span>
+                    </>
+                  )}
+                </div>
+                <button 
+                  className="continue-button" 
+                  onClick={handleContinue}
+                >
+                  <span>Continue</span>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </>
             ) : (
               <button 
                 className="folder-button" 
