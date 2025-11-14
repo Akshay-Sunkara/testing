@@ -170,17 +170,6 @@
   border-color: rgba(74, 21, 75, 0.6);
 }
 
-.slackdump-btn {
-  background: linear-gradient(135deg, #2c5530 0%, #1e3a21 100%);
-  border: 1px solid rgba(44, 85, 48, 0.3);
-}
-
-.slackdump-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(44, 85, 48, 0.5);
-  border-color: rgba(44, 85, 48, 0.6);
-}
-
 .action-btn:active:not(:disabled) {
   transform: translateY(0);
 }
